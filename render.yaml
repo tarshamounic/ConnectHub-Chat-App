@@ -3,7 +3,7 @@ services:
     name: connecthub-backend
     runtime: docker
     plan: free
-    region: oregon
+    region: singapore
     rootDir: connecthub/backend
     dockerfilePath: connecthub/backend/Dockerfile
     dockerContext: connecthub/backend
