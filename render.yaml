@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: connecthub-backend
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: connecthub/backend/Dockerfile
+    dockerContext: connecthub/backend
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://frontend-tpzr.vercel.app
