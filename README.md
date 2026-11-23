@@ -130,6 +130,43 @@ VITE_API_URL=http://localhost:8090/api
 VITE_WS_URL=ws://localhost:8090/ws
 ```
 
+## Deploy to Vercel and Railway
+
+Vercel hosts the React frontend; the Spring Boot API and MySQL database must run separately. This repository includes `frontend/vercel.json` for client-side routes and `backend/railway.json` for the Railway build and start commands.
+
+### Deploy the backend to Railway
+
+1. Create a Railway project from this repository and add a MySQL service.
+2. Create a Spring Boot service from the same repository and set its **Root Directory** to `/backend`.
+3. Set these variables on the backend service, replacing `MySQL` in variable references if your database service has a different name:
+
+   | Variable | Value |
+   | --- | --- |
+   | `DB_URL` | `jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC` |
+   | `DB_USERNAME` | `${{MySQL.MYSQLUSER}}` |
+   | `DB_PASSWORD` | `${{MySQL.MYSQLPASSWORD}}` |
+   | `JWT_SECRET` | A unique, randomly generated secret of at least 32 characters |
+   | `CORS_ORIGINS` | Your Vercel site origin, for example `https://connecthub.vercel.app` |
+   | `WS_ALLOWED_ORIGINS` | The same Vercel site origin |
+
+   Railway supplies `PORT`; the application uses it automatically. Set both origin variables to the exact origin, with no trailing slash. If you have not deployed the frontend yet, temporarily use the local origins and update them after deploying.
+4. Generate a public domain for the backend service. The API base URL is `https://<backend-domain>/api`.
+
+### Deploy the frontend to Vercel
+
+1. Import the repository in Vercel and set **Root Directory** to `frontend`.
+2. Set these project environment variables, using the Railway public domain:
+
+   | Variable | Value |
+   | --- | --- |
+   | `VITE_API_URL` | `https://<backend-domain>/api` |
+   | `VITE_WS_URL` | `wss://<backend-domain>/ws` |
+
+3. Deploy. Vercel detects the Vite build (`npm run build`, output directory `dist`).
+4. Copy the deployed site origin (for example, `https://connecthub.vercel.app`) into `CORS_ORIGINS` and `WS_ALLOWED_ORIGINS` on Railway, then redeploy the backend.
+
+The frontend variables are embedded at build time; redeploy the frontend after changing them. For Vercel preview deployments, add each preview origin to both backend origin variables if it needs API/WebSocket access.
+
 ## Using ConnectHub
 
 1. Register two different accounts (for example in a normal window and a private window).
